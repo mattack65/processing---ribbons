@@ -7,27 +7,32 @@ float strokeweight = 0.3;
 boolean creationLinesVisible = false;
 
 // all about making movies
-boolean makeMovie = true;
+boolean makeMovie = false;
 boolean movieHelperLinesInitiated = false;
 PVector[][][] moviePointVectors;
 
 // the number of points in each helper line, minimum 2 entries, each entry >= 2
 // the most important parameter. The more points, the more complex
 // the number of helperlines is defined by the number of entries
-int[] helperLinePoints = {2,3,5,7};
+
+// int[] helperLinePoints = {2,4,5};
+
+int[] helperLinePoints = {2,4,5,3};
 
 BezierLine[] helperLineArr;
 int helperLinesNo; // will be set automatically
 
-int connectors = 500;  // number of perceived lines, roughly
+int connectors = 400;  // number of perceived lines, roughly
 
 boolean straightLines = false;
 boolean closeHelperLines = true;
 
+boolean multiColor = false;
+
 int stillFrameCounter = 0;
 
 void setup () {
-  size(1920, 1080);
+  size(1410, 1000);
   background(255);
   strokeWeight(strokeweight);
 
@@ -52,7 +57,7 @@ BezierLine createRndBezierLine(int numPoints) {
   for (int i = 0; i < numPoints; i++) {
     line.addPoint(new PVector(border + random(width - 2 * border), border + random(height - 2 * border)));
   }
-  if (closeHelperLines) {
+  if (closeHelperLines && numPoints > 2) {
     line.closeCurve();
   }
   return line;
@@ -101,19 +106,19 @@ void drawLines() {
   }
 
   if (!straightLines) {
-
     // draw the big bezier curve
-    /* multi colored
-     stroke(0);
-     bigLine.drawFromTo(1, bigLine.points.size()/2);
-     stroke(255,0,0);
-     bigLine.drawFromTo(bigLine.points.size()/2 + 1, bigLine.points.size()-3);
-     */
+    if (multiColor) {
+      stroke(0);
+      bigLine.drawFromTo(1, bigLine.points.size()/2);
+      stroke(255,0,0);
+      bigLine.drawFromTo(bigLine.points.size()/2 + 1, bigLine.points.size()-3);
+    } else {
+      bigLine.drawFromTo(1, bigLine.points.size()-3);
+    }
 
-    bigLine.drawFromTo(1, bigLine.points.size()-3);
-    // bigLine.closeCurve();
-    // bigLine.drawAll();
-    // println("length: ", (int) bigLine.getLength(5)/1000.0, "m");
+    if (!makeMovie) {
+      println("length: ", (int) bigLine.getLength(5)/1000.0, "m");
+    }
   }
 }
 
@@ -164,7 +169,7 @@ void draw() {
   }
    
   drawLines();
-  saveFrame("frames/#####.tif");
+  // saveFrame("frames/#####.tif");
    
   if (stillFrameCounter % 300 == 0) {
     // start a new object
@@ -227,6 +232,10 @@ void keyPressed () {
     connectors /= 1.1;
     println("connectors:", connectors);
   }
+  if (key == 'm') {
+    multiColor = !multiColor; 
+  }
+  
   background(255);
   drawLines();
 }
