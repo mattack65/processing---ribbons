@@ -1,78 +1,68 @@
 import processing.svg.*;
 
-BezierLine line1;
-BezierLine line2;
-BezierLine line3;
 BezierLine bigLine;
 
 int border = 100;
 float strokeweight = 0.3;
 boolean creationLinesVisible = false;
 
-int connectors = 600;
-int points1 = 7;
-int points2 = 3;
-int points3 = 5;
+// all about making movies
+boolean makeMovie = true;
+boolean movieHelperLinesInitiated = false;
+PVector[][][] moviePointVectors;
 
-int version = 3;
+// the number of points in each helper line, minimum 2 entries, each entry >= 2
+// the most important parameter. The more points, the more complex
+// the number of helperlines is defined by the number of entries
+int[] helperLinePoints = {2,3,5,7};
+
+BezierLine[] helperLineArr;
+int helperLinesNo; // will be set automatically
+
+int connectors = 500;  // number of perceived lines, roughly
+
+boolean straightLines = false;
+boolean closeHelperLines = true;
 
 int stillFrameCounter = 0;
 
 void setup () {
-  size(1410, 1000);
+  size(1920, 1080);
   background(255);
   strokeWeight(strokeweight);
 
-  createRndLines();
-  drawLines();
-  // createRndLinesDbg();
-  // drawLinesDbg();
+  helperLinesNo = helperLinePoints.length;
+  helperLineArr = new BezierLine[helperLinesNo];
+
+  if (connectors == 0) {
+    // estimate the needed connectors
+    //TBD:
+    //connectors = helperLinePoints[0] * helperLinePoints[1] *
+  }
+
+  if (!makeMovie) {
+    createRndHelperLines();
+    drawLines();
+  }
 }
 
-void createRndLines() {
-  line1 = new BezierLine();
-  line2 = new BezierLine();
-  line3 = new BezierLine();
-
-  for (int i = 0; i < points1; i++) {
-    line1.addPoint(new PVector(border + random(width - 2 * border), border + random(height - 2 * border)));
+BezierLine createRndBezierLine(int numPoints) {
+  // create a bezierLIne with a number of random points on the canvas
+  BezierLine line = new BezierLine();
+  for (int i = 0; i < numPoints; i++) {
+    line.addPoint(new PVector(border + random(width - 2 * border), border + random(height - 2 * border)));
   }
-
-  for (int i = 0; i < points2; i++) {
-    line2.addPoint(new PVector(border + random(width - 2 * border), border + random(height - 2 * border)));
+  if (closeHelperLines) {
+    line.closeCurve();
   }
+  return line;
+}
 
-  if (version == 3) {
-    for (int i = 0; i < points3; i++) {
-      line3.addPoint(new PVector(border + random(width - 2 * border), border + random(height - 2 * border)));
-    }
+void createRndHelperLines() {
+  // create a number of random bezier lines of given length
+  for (int j = 0; j < helperLinesNo; j++) {
+    helperLineArr[j] = createRndBezierLine(helperLinePoints[j]);
   }
-
-
-  // all lines have common points
-  /*
-  line2.addPoint(line1.points.get(0));
-  line1.addPoint(line2.points.get(0));
-  line3.addPoint(line1.points.get(0));
-  */
-  
-  // all curves closed
-  /*
-  line1.closeCurve();
-  line2.closeCurve();
-  line3.closeCurve();
-  */
-  
-
-  // test
-  /*
-  line1.addPoint(line1.points.get(0));
-   line1.addPoint(line1.points.get(1));
-   line2.addPoint(line2.points.get(0));
-   line2.addPoint(line2.points.get(1));
-   line3.addPoint(line3.points.get(0));
-   line3.addPoint(line3.points.get(1));
-   */
 }
 
 void drawLines() {
@@ -81,89 +71,115 @@ void drawLines() {
   if (creationLinesVisible) {
     stroke(255, 0, 0);
     strokeWeight(2);
-    line1.drawAll();
-    line2.drawAll();
-    if (version == 3) {
-      line3.drawAll();
+    for (int j = 0; j < helperLinesNo; j++) {
+      helperLineArr[j].drawAll();
     }
     strokeWeight(strokeweight);
   }
 
-   
-  PVector[] pointsOnLine1 = null;
-  PVector[] pointsOnLine2 = null;
-  PVector[] pointsOnLine3 = null;
+  // calculate all the points on the helper lines
+  PVector[][] pointsOnLine = new PVector[helperLinesNo][];
 
-  if (version <= 3) {
-    pointsOnLine1 = line1.getEquidistantPointArr(connectors); 
-    pointsOnLine2 = line2.getEquidistantPointArr(connectors);
-  }
-  if (version == 3) {
-    pointsOnLine3 = line3.getEquidistantPointArr(connectors);
+  for (int j = 0; j < helperLinesNo; j++) {
+    pointsOnLine[j] = helperLineArr[j].getEquidistantPointArr(connectors);
   }
 
   stroke(0);
   for (int i = 0; i < connectors; i++) {
 
-    if (version == 1) {
-      // just straight lines, but optimized for pen plotter
-      if ((i % 2) == 0) {
-        line(pointsOnLine1[i].x, pointsOnLine1[i].y, pointsOnLine2[i].x, pointsOnLine2[i].y);
-      } else {
-        line(pointsOnLine2[i].x, pointsOnLine2[i].y, pointsOnLine1[i].x, pointsOnLine1[i].y);
+    if (straightLines) {
+      // draw just straight lines
+      for (int j = 0; j < helperLinesNo - 1; j++) {
+        line(pointsOnLine[j][i].x, pointsOnLine[j][i].y, pointsOnLine[j+1][i].x, pointsOnLine[j+1][i].y);
+      }
+    } else {
+      // create the big bezier curve
+      for (int j = 0; j < helperLinesNo; j++) {
+        bigLine.addPoint(pointsOnLine[j][i]);
       }
     }
-    if (version >= 2) {
-      // connect the points to a new snaking bezier curve
-      bigLine.addPoint(pointsOnLine1[i]);
-      bigLine.addPoint(pointsOnLine2[i]);
-    }
-    if (version == 3) {
-      bigLine.addPoint(pointsOnLine3[i]);
-    }
-    
   }
-    
-  if (version >= 2) {
+
+  if (!straightLines) {
+
+    // draw the big bezier curve
     /* multi colored
-    stroke(0);
-    bigLine.drawFromTo(1, bigLine.points.size()/2);
-    stroke(255,0,0);
-    bigLine.drawFromTo(bigLine.points.size()/2 + 1, bigLine.points.size()-3);
-    */
-    
+     stroke(0);
+     bigLine.drawFromTo(1, bigLine.points.size()/2);
+     stroke(255,0,0);
+     bigLine.drawFromTo(bigLine.points.size()/2 + 1, bigLine.points.size()-3);
+     */
+
     bigLine.drawFromTo(1, bigLine.points.size()-3);
     // bigLine.closeCurve();
     // bigLine.drawAll();
-    println("length: ", (int) bigLine.getLength(5)/1000.0, "m");
+    // println("length: ", (int) bigLine.getLength(5)/1000.0, "m");
   }
 }
 
 void draw() {
-  // making a movie
-  // grab one point on line 1 and jiggle it arund a bit
+  
+  if (!makeMovie) {
+    return;
+  }
+  if (stillFrameCounter == 118 * 30) {
+    exit();
+  }
+   
+  if (!movieHelperLinesInitiated) {
+    BezierLine line;
+    
+    // Initialize the top-level array with the number of helper lines
+    moviePointVectors = new PVector[helperLinesNo][][];
+    
+    // initiate helper lines for each point on each of the helper lines
+    for (int j = 0; j < helperLinesNo; j++) {
+      
+      // Initialize the second level array for each helper line based on number of points
+      moviePointVectors[j] = new PVector[helperLinePoints[j]][];
+      
+      for (int i = 0; i < helperLinePoints[j]; i++) {
+        line = createRndBezierLine(5);
+        line.closeCurve();
+        moviePointVectors[j][i] = line.getEquidistantPointArr(600 + (int)random(200));
+      }
+    }
+    movieHelperLinesInitiated = true;
+  }
+   
   stillFrameCounter++;
-  line1.movePoint(0, new PVector(-5 * sin((float)stillFrameCounter/34), 5 * cos((float)stillFrameCounter/34)));
-  line1.movePoint(1, new PVector(4 * sin((float)stillFrameCounter/40), 4 * cos((float)stillFrameCounter/40)));
-  line1.movePoint(2, new PVector(-3 * sin((float)stillFrameCounter/30), -3 * cos((float)stillFrameCounter/30)));
-  line1.movePoint(3, new PVector(4 * sin((float)stillFrameCounter/60), 4 * cos((float)stillFrameCounter/60)));
-  line1.movePoint(4, new PVector(-2 * sin((float)stillFrameCounter/46), 2 * cos((float)stillFrameCounter/46)));
-  line1.movePoint(5, new PVector(3 * sin((float)stillFrameCounter/66), -3 * cos((float)stillFrameCounter/66)));
-
-  line2.movePoint(0, new PVector(5 * sin((float)stillFrameCounter/34), 5 * cos((float)stillFrameCounter/34)));
-  line2.movePoint(1, new PVector(-4 * sin((float)stillFrameCounter/40), -4 * cos((float)stillFrameCounter/40)));
-  line2.movePoint(2, new PVector(3 * sin((float)stillFrameCounter/36), 3 * cos((float)stillFrameCounter/36)));
   background(255);
+ 
+  // create the helperLineArrs new
+  BezierLine line;
+  for (int j = 0; j < helperLinesNo; j++) {
+    line = new BezierLine();
+    for (int i = 0; i < helperLinePoints[j]; i++) {
+      line.addPoint(moviePointVectors[j][i][stillFrameCounter % moviePointVectors[j][i].length]);
+    }
+    if (closeHelperLines) {
+      line.closeCurve();
+    }
+    helperLineArr[j] = line;
+  }
+   
   drawLines();
-  // saveFrame("frames/#####.png");
+  saveFrame("frames/#####.tif");
+   
+  if (stillFrameCounter % 300 == 0) {
+    // start a new object
+    movieHelperLinesInitiated = false; 
+  }
   // delay(10);
+  println(stillFrameCounter);
+  
 }
 
 void mousePressed() {
   if (mouseButton == LEFT) {
     // make a new one
     background(255);
-    createRndLines();
+    createRndHelperLines();
     drawLines();
     // createRndLinesDbg();
     // drawLinesDbg();
@@ -174,13 +190,12 @@ void mousePressed() {
     //create a unique timestamp
     String timestamp = year() + "-" + month() + "-" + day() + "_" + hour() + "-" + minute() + "-" + second();
 
-    if (version == 1) {
+    if (straightLines) {
       beginRecord(SVG, sketchPath("output_" + timestamp + ".svg"));   // record it all to an SVG-File
       drawLines();
       endRecord(); // Beendet die SVG-Aufzeichnung
       println(sketchPath("output_" + timestamp + ".svg") + " written");
-    }
-    if (version >= 2) {
+    } else {
       StringBuilder svgContent = new StringBuilder();
 
       // Header
