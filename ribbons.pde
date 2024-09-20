@@ -11,11 +11,6 @@ boolean makeMovie = false;
 boolean movieHelperLinesInitiated = false;
 PVector[][][] moviePointVectors;
 
-// the number of points in each helper line, minimum 2 entries, each entry >= 2
-// the most important parameter. The more points, the more complex
-// the number of helperlines is defined by the number of entries
-
-
 
 BezierLine[] helperLineArr;
 int helperLinesNo; // will be set automatically
@@ -23,7 +18,11 @@ int helperLinesNo; // will be set automatically
 // Parameters to play with:
 ///////////////////////////////////////////////
 // How many helkper lines and how many points per helper line. Expand as you wish. You can change the number of lines by adding another number to the array
+// the number of points in each helper line, minimum 2 entries, each entry >= 2
+// the most important parameter. The more points, the more complex
+
 int[] helperLinePoints = {4,4,2,6};
+
 // int[] helperLinePoints = {2,4,5};
 // int[] helperLinePoints = {2,3};
 
