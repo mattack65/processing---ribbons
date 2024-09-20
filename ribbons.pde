@@ -15,24 +15,30 @@ PVector[][][] moviePointVectors;
 // the most important parameter. The more points, the more complex
 // the number of helperlines is defined by the number of entries
 
-// int[] helperLinePoints = {2,4,5};
 
-int[] helperLinePoints = {2,4,5,3};
 
 BezierLine[] helperLineArr;
 int helperLinesNo; // will be set automatically
 
-int connectors = 400;  // number of perceived lines, roughly
+// Parameters to play with:
+///////////////////////////////////////////////
+// How many helkper lines and how many points per helper line. Expand as you wish. You can change the number of lines by adding another number to the array
+int[] helperLinePoints = {4,4,2};
+// int[] helperLinePoints = {2,4,5};
+// int[] helperLinePoints = {2,3};
+
+int connectors = 400;  // number of perceived lines, roughly (can be changed while the program runs with "+" or "-"
 
 boolean straightLines = false;
 boolean closeHelperLines = true;
-
 boolean multiColor = false;
+///////////////////////////////////////////////
 
 int stillFrameCounter = 0;
 
 void setup () {
   size(1410, 1000);
+  // size(2048, 1080); // 2K for movies
   background(255);
   strokeWeight(strokeweight);
 
@@ -127,7 +133,8 @@ void draw() {
   if (!makeMovie) {
     return;
   }
-  if (stillFrameCounter == 118 * 30) {
+  if (stillFrameCounter == 180 * 30) {
+    // how long it should run (at 30 fps)
     exit();
   }
    
@@ -169,12 +176,14 @@ void draw() {
   }
    
   drawLines();
-  // saveFrame("frames/#####.tif");
+  // saveFrame("frames/#####.png");
    
+  /*
   if (stillFrameCounter % 300 == 0) {
     // start a new object
     movieHelperLinesInitiated = false; 
   }
+  */
   // delay(10);
   println(stillFrameCounter);
   
