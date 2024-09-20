@@ -23,7 +23,7 @@ int helperLinesNo; // will be set automatically
 // Parameters to play with:
 ///////////////////////////////////////////////
 // How many helkper lines and how many points per helper line. Expand as you wish. You can change the number of lines by adding another number to the array
-int[] helperLinePoints = {4,4,2};
+int[] helperLinePoints = {4,4,2,6};
 // int[] helperLinePoints = {2,4,5};
 // int[] helperLinePoints = {2,3};
 
