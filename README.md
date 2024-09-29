@@ -21,9 +21,9 @@ With "m" you can add some color.
 
 To make an animation or a video, you need to un-comment a few lines, but I recommend to play around with the single images first.
 
-The code creates one very long bezier curve. When you save it to a SVG-file (right mouse button), it will break in up into several paths (e.g. 3 or 4 paths), instead of one very long path. This will give you the opportunity, to plot one path, then re-fill ink or exchange the pen, and then continue with the next path. There is a parameter somewhere in the code, where you can set the max. length of each path. The multiple paths also make it very easy, if you want to plot part of the image in a different color, with another pen etc.
+The code creates one very long bezier curve. When you save it to a SVG-file (right mouse button), it will break it up into several paths (e.g. 3 or 4 paths), instead of one very long path. This will give you the opportunity, to plot one path, then re-fill ink or exchange the pen, and then continue with the next path. There is a parameter somewhere in the code, where you can set the max. length of each path. The multiple paths also make it very easy, if you want to plot part of the image in a different color, with another pen etc.
 
-The total length of the line is printed out (println) after every generation of an image. The length is calculated, as if every pixel of the image were 1 mm. So if you set the canvas to 1000 x 800 and later plot it on a 1000 x 800 mm piece of paper, the length corresponds. If however you then plot it on a smaller paper e.g. 250 x 200 mm, then you have to divide the line length by 4 to get the real plotted line length. 
+The total length of the line is printed out (println) after every generation of an image. The length is calculated, as if every pixel of the image were 1 mm. So if you set the canvas to 1000 x 800 and later plot it on a 1000 x 800 mm piece of paper, the length corresponds. If however you plot it on a smaller paper e.g. 250 x 200 mm, then you have to divide the line length by 4 (in this example) to get the real plotted line length. 
 
 It's all very primitive and experimental. 
 
