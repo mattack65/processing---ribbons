@@ -2,3 +2,5 @@
 *.mp4
 frames/
 bezierLineClass.pde
+
+!output_samples/*.svg

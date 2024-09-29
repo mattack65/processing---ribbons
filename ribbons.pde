@@ -21,15 +21,16 @@ int helperLinesNo; // will be set automatically
 // the number of points in each helper line, minimum 2 entries, each entry >= 2
 // the most important parameter. The more points, the more complex
 
-int[] helperLinePoints = {4,4,2,6};
+int[] helperLinePoints = {3,3};
 
 // int[] helperLinePoints = {2,4,5};
 // int[] helperLinePoints = {2,3};
 
-int connectors = 400;  // number of perceived lines, roughly (can be changed while the program runs with "+" or "-"
+int connectors = 100;  // number of perceived lines, roughly (can be changed while the program runs with "+" or "-"
 
 boolean straightLines = false;
 boolean closeHelperLines = true;
+boolean closeBigLine = false;
 boolean multiColor = false;
 ///////////////////////////////////////////////
 
@@ -108,6 +109,10 @@ void drawLines() {
         bigLine.addPoint(pointsOnLine[j][i]);
       }
     }
+    if (closeHelperLines && closeBigLine) {
+      bigLine.closeCurve();
+    }
+
   }
 
   if (!straightLines) {
@@ -242,6 +247,9 @@ void keyPressed () {
   }
   if (key == 'm') {
     multiColor = !multiColor; 
+  }
+  if (key == 't') {
+    closeBigLine = !closeBigLine; 
   }
   
   background(255);

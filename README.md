@@ -17,5 +17,8 @@ With "m" you can add some color.
 
 To make an actual animation, you need to un-comment a few lines, but I recommend to play around with the single images first.
 
-It's all very primitive and experimental. It needs a proper interface.
-Let me know if you run into any problems. 
+It's all very primitive and experimental. 
+
+It needs a proper interface. Let me know if you run into any problems.
+
+![Sample output 1](output_samples/output_2024-8-21_21-17-58.svg)
