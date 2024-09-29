@@ -19,7 +19,7 @@ With the right mouse button you can save it as an SVG.
 
 With "m" you can add some color.
 
-To make an actual animation, you need to un-comment a few lines, but I recommend to play around with the single images first.
+To make an animation or a video, you need to un-comment a few lines, but I recommend to play around with the single images first.
 
 The code creates one very long bezier curve. When you save it to a SVG-file (right mouse button), it will break in up into several paths (e.g. 3 or 4 paths), instead of one very long path. This will give you the opportunity, to plot one path, then re-fill ink or exchange the pen, and then continue with the next path. There is a parameter somewhere in the code, where you can set the max. length of each path. The multiple paths also make it very easy, if you want to plot part of the image in a different color, with another pen etc.
 
