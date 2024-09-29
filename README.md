@@ -3,9 +3,11 @@ This processing program generates beautiful ribbon- or textile-like structures l
 
 ![Sample output 7](output_samples/output_2024-8-27_22-55-46.svg)
 
+You can save them as an SVG-file, which lends itself for pen plotting very well.
+
 It makes use of the BezierLineClass. So in order to make this work you need to copy the file bezierLineClass.pde from [BezierLineClass](https://github.com/mattack65/processing---bezierLineClass) into the same directory (or copy it into another directory and then make a symlink in the ribbon directory).
  
-You can change the parameters starting around line 20 to change the appearance.
+You can change the parameters starting around line 20 to change the style.
 
 Every time you click the left mouse button, a new image is created.
 
