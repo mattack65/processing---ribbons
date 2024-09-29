@@ -2,36 +2,50 @@ import processing.svg.*;
 
 BezierLine bigLine;
 
-int border = 100;
+int border = 100;  // which part of the canvas should not be used to decrease the chance that lines go outside the canvas
 float strokeweight = 0.3;
 boolean creationLinesVisible = false;
 
-// all about making movies
+// all about making movies and animations (experimental)
 boolean makeMovie = false;
 boolean movieHelperLinesInitiated = false;
 PVector[][][] moviePointVectors;
-
 
 BezierLine[] helperLineArr;
 int helperLinesNo; // will be set automatically
 
 // Parameters to play with:
 ///////////////////////////////////////////////
-// How many helkper lines and how many points per helper line. Expand as you wish. You can change the number of lines by adding another number to the array
-// the number of points in each helper line, minimum 2 entries, each entry >= 2
-// the most important parameter. The more points, the more complex
+///////////////////////////////////////////////
+///////////////////////////////////////////////
+// How many helper lines and how many points per helper line. Expand as you wish. 
+// You can change the number of lines by adding another number to the array.
+// Each number defines the number of random points that define that line. 
+// It needs a minimum of 2 entries, each entry >= 2
+// This is the most important parameter. The more points, the more complex the drawing.
 
-int[] helperLinePoints = {3,3};
+int[] helperLinePoints = {5, 4, 2};
 
+// other samples that work well
 // int[] helperLinePoints = {2,4,5};
 // int[] helperLinePoints = {2,3};
 
-int connectors = 100;  // number of perceived lines, roughly (can be changed while the program runs with "+" or "-"
+int connectors = 1000;  // number of perceived lines, roughly (can be changed while the program runs with "+" or "-")
 
+// draw straight lines instead of a bezier curve; looks completely different
 boolean straightLines = false;
-boolean closeHelperLines = true;
-boolean closeBigLine = false;
+
+// close each helper line onto itself
+boolean closeHelperLines = false;
+
+// color some parts of the image differently
 boolean multiColor = false;
+
+// how long will each path be in the SVG file (if 1 pixel eq. 1 mm, adjust accordingly)
+int max_path_length_in_m = 500;
+
+///////////////////////////////////////////////
+///////////////////////////////////////////////
 ///////////////////////////////////////////////
 
 int stillFrameCounter = 0;
@@ -109,18 +123,15 @@ void drawLines() {
         bigLine.addPoint(pointsOnLine[j][i]);
       }
     }
-    if (closeHelperLines && closeBigLine) {
-      bigLine.closeCurve();
-    }
-
   }
+
 
   if (!straightLines) {
     // draw the big bezier curve
     if (multiColor) {
       stroke(0);
       bigLine.drawFromTo(1, bigLine.points.size()/2);
-      stroke(255,0,0);
+      stroke(255, 0, 0);
       bigLine.drawFromTo(bigLine.points.size()/2 + 1, bigLine.points.size()-3);
     } else {
       bigLine.drawFromTo(1, bigLine.points.size()-3);
@@ -133,7 +144,7 @@ void drawLines() {
 }
 
 void draw() {
-  
+
   if (!makeMovie) {
     return;
   }
@@ -141,19 +152,19 @@ void draw() {
     // how long it should run (at 30 fps)
     exit();
   }
-   
+
   if (!movieHelperLinesInitiated) {
     BezierLine line;
-    
+
     // Initialize the top-level array with the number of helper lines
     moviePointVectors = new PVector[helperLinesNo][][];
-    
+
     // initiate helper lines for each point on each of the helper lines
     for (int j = 0; j < helperLinesNo; j++) {
-      
+
       // Initialize the second level array for each helper line based on number of points
       moviePointVectors[j] = new PVector[helperLinePoints[j]][];
-      
+
       for (int i = 0; i < helperLinePoints[j]; i++) {
         line = createRndBezierLine(5);
         line.closeCurve();
@@ -162,10 +173,10 @@ void draw() {
     }
     movieHelperLinesInitiated = true;
   }
-   
+
   stillFrameCounter++;
   background(255);
- 
+
   // create the helperLineArrs new
   BezierLine line;
   for (int j = 0; j < helperLinesNo; j++) {
@@ -178,29 +189,31 @@ void draw() {
     }
     helperLineArr[j] = line;
   }
-   
+
   drawLines();
   // saveFrame("frames/#####.png");
-   
+
   /*
   if (stillFrameCounter % 300 == 0) {
-    // start a new object
-    movieHelperLinesInitiated = false; 
-  }
-  */
+   // start a new object
+   movieHelperLinesInitiated = false;
+   }
+   */
   // delay(10);
   println(stillFrameCounter);
-  
 }
 
 void mousePressed() {
   if (mouseButton == LEFT) {
     // make a new one
     background(255);
-    createRndHelperLines();
-    drawLines();
-    // createRndLinesDbg();
-    // drawLinesDbg();
+    
+    if (makeMovie) {
+      movieHelperLinesInitiated = false;
+    } else {
+      createRndHelperLines();
+      drawLines();
+    }
   }
 
   if (mouseButton == RIGHT) {
@@ -218,7 +231,7 @@ void mousePressed() {
 
       // Header
       svgContent.append(createSVGHeader(width, height));
-      svgContent.append(bigLine.toSVGPath(500000, 1, 1)); // in mm (and if the format of your paper were the same as the canvas here in mm)
+      svgContent.append(bigLine.toSVGPath(max_path_length_in_m * 1000, 1, 1)); // in mm (and if the format of your paper were the same as the canvas here in mm)
       // Remove the first and the last segment!! Same as we draw it!!
       // Footer
       svgContent.append(createSVGFooter());
@@ -246,12 +259,9 @@ void keyPressed () {
     println("connectors:", connectors);
   }
   if (key == 'm') {
-    multiColor = !multiColor; 
+    multiColor = !multiColor;
   }
-  if (key == 't') {
-    closeBigLine = !closeBigLine; 
-  }
-  
+
   background(255);
   drawLines();
 }
