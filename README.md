@@ -1,5 +1,7 @@
 # ribbons
-This processing program generates beautiful ribbon- or textile-like structures.
+This processing program generates beautiful ribbon- or textile-like structures like this:
+
+![Sample output 7](output_samples/output_2024-8-27_22-55-46.svg)
 
 It makes use of the BezierLineClass. So in order to make this work you need to copy the file bezierLineClass.pde from [BezierLineClass](https://github.com/mattack65/processing---bezierLineClass) into the same directory (or copy it into another directory and then make a symlink in the ribbon directory).
  
@@ -25,6 +27,8 @@ It's all very primitive and experimental.
 
 It needs a proper interface. Let me know if you run into any problems.
 
+More samples:
+
 ![Sample output 1](output_samples/output_2024-8-21_21-17-58.svg)
 
 ![Sample output 2](output_samples/output_2024-8-21_23-48-6.svg)
@@ -36,8 +40,6 @@ It needs a proper interface. Let me know if you run into any problems.
 ![Sample output 5](output_samples/output_2024-8-23_23-1-21.svg)
 
 ![Sample output 6](output_samples/output_2024-8-23_23-49-12.svg)
-
-![Sample output 7](output_samples/output_2024-8-27_22-55-46.svg)
 
 ![Sample output 8](output_samples/output_2024-8-27_23-3-25.svg)
 
