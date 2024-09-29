@@ -22,3 +22,24 @@ It's all very primitive and experimental.
 It needs a proper interface. Let me know if you run into any problems.
 
 ![Sample output 1](output_samples/output_2024-8-21_21-17-58.svg)
+
+![Sample output 1](output_samples/output_2024-8-21_23-48-6.svg)
+
+![Sample output 1](output_samples/output_2024-8-22_2-4-18.svg)
+
+![Sample output 1](output_samples/output_2024-8-22_2-38-34.svg)
+
+![Sample output 1](output_samples/output_2024-8-23_23-1-21.svg)
+
+![Sample output 1](output_samples/output_2024-8-23_23-49-12.svg)
+
+![Sample output 1](output_samples/output_2024-8-27_22-55-46.svg)
+
+![Sample output 1](output_samples/output_2024-8-27_23-2-55.svg)
+
+![Sample output 1](output_samples/output_2024-8-27_23-3-25.svg)
+
+![Sample output 1](output_samples/output_2024-8-27_23-16-22.svg)
+
+![Sample output 1](output_samples/output_2024-9-20_23-44-0.svg)
+
