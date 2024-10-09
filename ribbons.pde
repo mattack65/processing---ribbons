@@ -7,8 +7,9 @@ float strokeweight = 0.3;
 boolean creationLinesVisible = false;
 
 // all about making movies and animations (experimental)
-boolean makeMovie = false;
+boolean makeMovie = true;
 boolean movieHelperLinesInitiated = false;
+boolean pauseAnimation = false;
 PVector[][][] moviePointVectors;
 
 BezierLine[] helperLineArr;
@@ -24,19 +25,19 @@ int helperLinesNo; // will be set automatically
 // It needs a minimum of 2 entries, each entry >= 2
 // This is the most important parameter. The more points, the more complex the drawing.
 
-int[] helperLinePoints = {5, 4, 2};
+int[] helperLinePoints = {3, 5};
 
 // other samples that work well
 // int[] helperLinePoints = {2,4,5};
 // int[] helperLinePoints = {2,3};
 
-int connectors = 1000;  // number of perceived lines, roughly (can be changed while the program runs with "+" or "-")
+int connectors = 500;  // number of perceived lines, roughly (can be changed while the program runs with "+" or "-")
 
 // draw straight lines instead of a bezier curve; looks completely different
 boolean straightLines = false;
 
 // close each helper line onto itself
-boolean closeHelperLines = false;
+boolean closeHelperLines = true;
 
 // color some parts of the image differently
 boolean multiColor = false;
@@ -145,7 +146,7 @@ void drawLines() {
 
 void draw() {
 
-  if (!makeMovie) {
+  if (!makeMovie || pauseAnimation) {
     return;
   }
   if (stillFrameCounter == 180 * 30) {
@@ -182,7 +183,11 @@ void draw() {
   for (int j = 0; j < helperLinesNo; j++) {
     line = new BezierLine();
     for (int i = 0; i < helperLinePoints[j]; i++) {
-      line.addPoint(moviePointVectors[j][i][stillFrameCounter % moviePointVectors[j][i].length]);
+      if (j == 0) {
+        line.addPoint(moviePointVectors[j][i][stillFrameCounter % moviePointVectors[j][i].length]);
+      } else {
+        line.addPoint(moviePointVectors[j][i][0]);
+      }
     }
     if (closeHelperLines) {
       line.closeCurve();
@@ -260,6 +265,9 @@ void keyPressed () {
   }
   if (key == 'm') {
     multiColor = !multiColor;
+  }
+  if (key == ' ') {
+    pauseAnimation = !pauseAnimation;
   }
 
   background(255);
