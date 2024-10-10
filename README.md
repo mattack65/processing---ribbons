@@ -11,7 +11,7 @@ You can change the parameters starting around line 20 to change the style.
 
 Use following keys to manipulate the images:
 
-Hit "ENTER" to craete a new image
+Hit "ENTER" to create a new image
 
 Hit "Space" to stop and start an animation
 
