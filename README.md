@@ -9,19 +9,27 @@ It makes use of the BezierLineClass. So in order to make this work you need to c
  
 You can change the parameters starting around line 20 to change the style.
 
-Every time you click the left mouse button, a new image is created.
+Use following keys to manipulate the images:
+
+Hit "ENTER" to craete a new image
+
+Hit "Space" to stop and start an animation
 
 With the keys "+" and "-" you can increase or decrease the line density.
 
-With the middle mouse button you can show and hide the guidelines.
+Hit "h" to show/hide the helper lines
 
-With the right mouse button you can save it as an SVG.
+Hit "s" to save yout image to an SVG-file
+
+Hit "p" to show/hide the Bezier anchor points on the helper lines
+
+Hit "t" to switch between straight lines and bezier lines
 
 With "m" you can add some color.
 
-To make an animation or a video, you need to un-comment a few lines, but I recommend to play around with the single images first.
+To make an animation or a video, you need to un-comment a few lines, but I recommend to play around with the single images or animated images first.
 
-The code creates one very long bezier curve. When you save it to a SVG-file (right mouse button), it will break it up into several paths (e.g. 3 or 4 paths), instead of one very long path. This will give you the opportunity, to plot one path, then re-fill ink or exchange the pen, and then continue with the next path. There is a parameter named max_path_length_in_m in the code, where you can set the max. length of each path. The multiple paths also make it very easy, if you want to plot part of the image in a different color, with another pen etc.
+The code creates one very long bezier curve (in the bezier mode). When you save it to a SVG-file ("s"), it will break it up into several paths (e.g. 3 or 4 paths), instead of one very long path. This will give you the opportunity, to plot one path, then re-fill ink or exchange the pen, and then continue with the next path. There is a parameter named max_path_length_in_m in the code, where you can set the max. length of each path. The multiple paths also make it very easy, if you want to plot part of the image in a different color, with another pen etc.
 
 The total length of the line is printed out (println) after every generation of an image. The length is calculated, as if every pixel of the image were 1 mm. So if you set the canvas to 1000 x 800 and later plot it on a 1000 x 800 mm piece of paper, the length corresponds. If however you plot it on a smaller paper e.g. 250 x 200 mm, then you have to divide the line length by 4 (in this example) to get the real plotted line length. 
 
