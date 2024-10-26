@@ -8,10 +8,10 @@ boolean creationLinesVisible = false;
 boolean helperlinePointsVisible = false;
 
 // all about making movies and animations (experimental)
-boolean makeMovie = false;
-boolean movieHelperLinesInitiated = false;
+boolean animate = true;
+boolean animationHelperLinesInitiated = false;
 boolean pauseAnimation = false;
-PVector[][][] moviePointVectors;
+PVector[][][] animationPointVectors;
 boolean helperlineIntervallsVisible = false;
 
 BezierLine[] helperLineArr;
@@ -27,7 +27,7 @@ int helperLinesNo; // will be set automatically
 // It needs a minimum of 2 entries, each entry >= 2
 // This is the most important parameter. The more points, the more complex the drawing.
 
-int[] helperLinePoints = {6, 6, 3, 3};
+int[] helperLinePoints = {6, 3, 2};
 
 // other samples that work well
 // int[] helperLinePoints = {2,4,5};
@@ -71,7 +71,7 @@ void setup () {
     //connectors = helperLinePoints[0] * helperLinePoints[1] *
   }
 
-  if (!makeMovie) {
+  if (!animate) {
     createRndHelperLines();
     drawLines();
   }
@@ -90,46 +90,62 @@ BezierLine createRndBezierLine(int numPoints) {
 }
 
 void createRndHelperLines() {
+  // several alternatives available
+  pureRndHelperLines();
+  // translatedRotatedHelperLines(); // there must be exactly two helper lines defined
+  // wernersRndHelperLines(); // there must be exactly four helper lines defined
+  // noisySunHelperLines();
+}
 
-  /*
-  // create a number of random bezier lines of given length
-   for (int j = 0; j < helperLinesNo; j++) {
-   helperLineArr[j] = createRndBezierLine(helperLinePoints[j]);
-   }
-   */
+void pureRndHelperLines() {
+  // create a number of completely random bezier lines with given number of anchor points
+  for (int j = 0; j < helperLinesNo; j++) {
+    helperLineArr[j] = createRndBezierLine(helperLinePoints[j]);
+  }
+}
 
+void translatedRotatedHelperLines() {
+  // create a random helper line first and then create a copy that is translated and rotated.
+  // optionally add some random noise to the copy
+  // this will result in ribbon or hose like patterns
+  BezierLine line1 = createRndBezierLine(helperLinePoints[0]);
+  helperLineArr[0] = line1;
+
+  BezierLine line2 = new BezierLine(swell);
+  // Define the translation vector
+  PVector addVector = new PVector(50, 50);
+  // Convert degrees to radians because PVector.rotate() works with radians
+  float radians = radians(10);  // your rotation angle in degrees
+
+  // Define the center of rotation
+  PVector centerOfRotation = new PVector(width/2, height/2);  // (cx, cy) is the point around which you want to rotate
+
+  for (PVector point : line1.anchorPoints) {
+    // Copy the point, rotate it around (0,0), then translate it
+    PVector rotatedPoint = point.copy()
+      .sub(centerOfRotation)  // Step 1: Move to origin
+      .rotate(radians)        // Step 2: Rotate
+      .add(centerOfRotation)  // Step 3: Translate back
+      .add(addVector);        // Step 4: Final translation
+    // alternative:
+    // .add(new PVector(random(50), random(50)));
+    // Add the new rotated and translated point to the new line
+    line2.addPoint(rotatedPoint);
+  }
+
+  if (closeHelperLines) {
+    line2.closeCurve();
+  }
+  helperLineArr[1] = line2;
+}
+
+
+void wernersRndHelperLines() {
+  // Werner suggested to make the ribbons more voluminous
+  // We achieve this by creating two random lines and a copy of each (possibly rotated and random noise as well)
+  // this well result in more "pumped up" structures
   BezierLine line0 = createRndBezierLine(helperLinePoints[0]);
   helperLineArr[0] = line0;
-
-
-  /*
-  BezierLine line2 = new BezierLine(swell);
-   // Define the translation vector
-   PVector addVector = new PVector(50, 50);
-   
-   // Define the center of rotation
-   PVector centerOfRotation = new PVector(width/2, height/2);  // (cx, cy) is the point around which you want to rotate
-   
-   // Convert degrees to radians because PVector.rotate() works with radians
-   float radians = radians(0);  // Assuming x is your angle in degrees
-   
-   for (PVector point : line1.anchorPoints) {
-   // Copy the point, rotate it around (0,0), then translate it
-   PVector rotatedPoint = point.copy()
-   .sub(centerOfRotation)  // Step 1: Move to origin
-   .rotate(radians)        // Step 2: Rotate
-   .add(centerOfRotation)  // Step 3: Translate back
-   .add(new PVector(30), 30)));        // Step 4: Final translation
-   // Add the new rotated and translated point to the new line
-   line2.addPoint(rotatedPoint);
-   }
-   
-   if (closeHelperLines) {
-   line2.closeCurve();
-   }
-   helperLineArr[1] = line2;
-   */
-
 
   BezierLine line1 = new BezierLine(swell);
   // copy and translate the first line
@@ -156,6 +172,33 @@ void createRndHelperLines() {
   helperLineArr[1] = line2;
   helperLineArr[2] = line3;
   helperLineArr[3] = line1;
+}
+
+void noisySunHelperLines() {
+  
+  BezierLine line0 = new BezierLine();
+  BezierLine line1 = new BezierLine();
+  float x, y;
+  float cx = width / 2;
+  float cy = height / 2;
+  int numPoints = 100;
+  float radius = width/3.5;
+  for (int i = 0; i < numPoints; i++) {
+    x = cx + cos(TWO_PI/numPoints * i) * radius;
+    y = cy + sin(TWO_PI/numPoints * i) * radius;
+    line0.addPoint(new PVector(x,y));
+  }
+  line0.closeCurve();
+  helperLineArr[0] = line0;
+  
+  radius = width/8;
+  for (int i =0; i < numPoints; i++) {
+    x = cx + cos(TWO_PI/numPoints * i) * radius;
+    y = cy + sin(TWO_PI/numPoints * i) * radius;
+    line1.addPoint(new PVector(x,y));
+  }
+  line1.closeCurve();
+  helperLineArr[1] = line1;
 }
 
 void drawLines() {
@@ -242,7 +285,7 @@ void drawLines() {
       }
     }
 
-    if (!makeMovie) {
+    if (!animate) {
       println("length: ", (int) bigLine.getLength(5)/1000.0, "m");
     }
   }
@@ -250,7 +293,7 @@ void drawLines() {
 
 void draw() {
 
-  if (!makeMovie || pauseAnimation) {
+  if (!animate || pauseAnimation) {
     return;
   }
   if (stillFrameCounter == 180 * 30) {
@@ -258,25 +301,25 @@ void draw() {
     exit();
   }
 
-  if (!movieHelperLinesInitiated) {
+  if (!animationHelperLinesInitiated) {
     BezierLine line;
 
     // Initialize the top-level array with the number of helper lines
-    moviePointVectors = new PVector[helperLinesNo][][];
+    animationPointVectors = new PVector[helperLinesNo][][];
 
     // initiate helper lines for each point on each of the helper lines
     for (int j = 0; j < helperLinesNo; j++) {
 
       // Initialize the second level array for each helper line based on number of points
-      moviePointVectors[j] = new PVector[helperLinePoints[j]][];
+      animationPointVectors[j] = new PVector[helperLinePoints[j]][];
 
       for (int i = 0; i < helperLinePoints[j]; i++) {
         line = createRndBezierLine(5);
         line.closeCurve();
-        moviePointVectors[j][i] = line.getEquidistantPointArr(600 + (int)random(200));
+        animationPointVectors[j][i] = line.getEquidistantPointArr(600 + (int)random(200));
       }
     }
-    movieHelperLinesInitiated = true;
+    animationHelperLinesInitiated = true;
   }
 
   stillFrameCounter++;
@@ -288,9 +331,9 @@ void draw() {
     line = new BezierLine(swell);
     for (int i = 0; i < helperLinePoints[j]; i++) {
       if (j == 0) {
-        line.addPoint(moviePointVectors[j][i][stillFrameCounter % moviePointVectors[j][i].length]);
+        line.addPoint(animationPointVectors[j][i][stillFrameCounter % animationPointVectors[j][i].length]);
       } else {
-        line.addPoint(moviePointVectors[j][i][0]);
+        line.addPoint(animationPointVectors[j][i][0]);
       }
     }
     if (closeHelperLines) {
@@ -305,7 +348,7 @@ void draw() {
   /*
   if (stillFrameCounter % 300 == 0) {
    // start a new object
-   movieHelperLinesInitiated = false;
+   animationHelperLinesInitiated = false;
    }
    */
   // delay(10);
@@ -364,8 +407,8 @@ void keyPressed () {
     straightLines = !straightLines;
   }
   if (key == ENTER || key == RETURN) {
-    if (makeMovie) {
-      movieHelperLinesInitiated = false;
+    if (animate) {
+      animationHelperLinesInitiated = false;
     } else {
       createRndHelperLines();
     }
