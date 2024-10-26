@@ -2,15 +2,17 @@ import processing.svg.*;
 
 BezierLine bigLine;
 
-int border = 100;  // which part of the canvas should not be used to decrease the chance that lines go outside the canvas
+int border = 50;  // which part of the canvas should not be used to decrease the chance that lines go outside the canvas
 float strokeweight = 0.3;
 boolean creationLinesVisible = false;
+boolean helperlinePointsVisible = false;
 
 // all about making movies and animations (experimental)
-boolean makeMovie = true;
+boolean makeMovie = false;
 boolean movieHelperLinesInitiated = false;
 boolean pauseAnimation = false;
 PVector[][][] moviePointVectors;
+boolean helperlineIntervallsVisible = false;
 
 BezierLine[] helperLineArr;
 int helperLinesNo; // will be set automatically
@@ -19,13 +21,13 @@ int helperLinesNo; // will be set automatically
 ///////////////////////////////////////////////
 ///////////////////////////////////////////////
 ///////////////////////////////////////////////
-// How many helper lines and how many points per helper line. Expand as you wish. 
+// How many helper lines and how many points per helper line. Expand as you wish.
 // You can change the number of lines by adding another number to the array.
-// Each number defines the number of random points that define that line. 
+// Each number defines the number of random points that define that line.
 // It needs a minimum of 2 entries, each entry >= 2
 // This is the most important parameter. The more points, the more complex the drawing.
 
-int[] helperLinePoints = {3, 5};
+int[] helperLinePoints = {6, 6, 3, 3};
 
 // other samples that work well
 // int[] helperLinePoints = {2,4,5};
@@ -35,6 +37,9 @@ int connectors = 500;  // number of perceived lines, roughly (can be changed whi
 
 // draw straight lines instead of a bezier curve; looks completely different
 boolean straightLines = false;
+
+// how bulgy should the curves be?
+float swell = 0.3;
 
 // close each helper line onto itself
 boolean closeHelperLines = true;
@@ -74,7 +79,7 @@ void setup () {
 
 BezierLine createRndBezierLine(int numPoints) {
   // create a bezierLIne with a number of random points on the canvas
-  BezierLine line = new BezierLine();
+  BezierLine line = new BezierLine(swell);
   for (int i = 0; i < numPoints; i++) {
     line.addPoint(new PVector(border + random(width - 2 * border), border + random(height - 2 * border)));
   }
@@ -85,14 +90,77 @@ BezierLine createRndBezierLine(int numPoints) {
 }
 
 void createRndHelperLines() {
+
+  /*
   // create a number of random bezier lines of given length
-  for (int j = 0; j < helperLinesNo; j++) {
-    helperLineArr[j] = createRndBezierLine(helperLinePoints[j]);
+   for (int j = 0; j < helperLinesNo; j++) {
+   helperLineArr[j] = createRndBezierLine(helperLinePoints[j]);
+   }
+   */
+
+  BezierLine line0 = createRndBezierLine(helperLinePoints[0]);
+  helperLineArr[0] = line0;
+
+
+  /*
+  BezierLine line2 = new BezierLine(swell);
+   // Define the translation vector
+   PVector addVector = new PVector(50, 50);
+   
+   // Define the center of rotation
+   PVector centerOfRotation = new PVector(width/2, height/2);  // (cx, cy) is the point around which you want to rotate
+   
+   // Convert degrees to radians because PVector.rotate() works with radians
+   float radians = radians(0);  // Assuming x is your angle in degrees
+   
+   for (PVector point : line1.anchorPoints) {
+   // Copy the point, rotate it around (0,0), then translate it
+   PVector rotatedPoint = point.copy()
+   .sub(centerOfRotation)  // Step 1: Move to origin
+   .rotate(radians)        // Step 2: Rotate
+   .add(centerOfRotation)  // Step 3: Translate back
+   .add(new PVector(30), 30)));        // Step 4: Final translation
+   // Add the new rotated and translated point to the new line
+   line2.addPoint(rotatedPoint);
+   }
+   
+   if (closeHelperLines) {
+   line2.closeCurve();
+   }
+   helperLineArr[1] = line2;
+   */
+
+
+  BezierLine line1 = new BezierLine(swell);
+  // copy and translate the first line
+  PVector addVector = new PVector(-60, 30);
+  for (PVector point : line0.anchorPoints) {
+    // line2.addPoint(point.copy().add(new PVector(random(100), random(100))));
+    line1.addPoint(point.copy().add(addVector));
   }
+  if (closeHelperLines) {
+    line1.closeCurve();
+  }
+
+
+  BezierLine line2 = createRndBezierLine(helperLinePoints[2]);
+
+  BezierLine line3 = new BezierLine(swell);
+  // copy and translate the 3rd line
+  addVector = new PVector(-60, 30);
+  for (PVector point : line2.anchorPoints) {
+    line3.addPoint(point.copy().add(addVector));
+  }
+  line3.closeCurve();
+
+  helperLineArr[1] = line2;
+  helperLineArr[2] = line3;
+  helperLineArr[3] = line1;
 }
 
 void drawLines() {
-  bigLine = new BezierLine();  // not in all versions needed
+  bigLine = new BezierLine(swell);  // not in all versions needed
+  // bigLine = new BezierLine(0.3);  // not in all versions needed
 
   if (creationLinesVisible) {
     stroke(255, 0, 0);
@@ -103,12 +171,39 @@ void drawLines() {
     strokeWeight(strokeweight);
   }
 
+  if (helperlinePointsVisible) {
+    stroke(0, 0, 255);
+    strokeWeight(2);
+    for (int j = 0; j < helperLinesNo; j++) {
+      for (PVector point : helperLineArr[j].anchorPoints) {
+        circle(point.x, point.y, 5);
+      }
+      // circle(helperLineArr[j].anchorPoints.get(0).x, helperLineArr[j].anchorPoints.get(0).y, 5);
+    }
+    strokeWeight(strokeweight);
+  }
+
+
+
   // calculate all the points on the helper lines
   PVector[][] pointsOnLine = new PVector[helperLinesNo][];
 
   for (int j = 0; j < helperLinesNo; j++) {
     pointsOnLine[j] = helperLineArr[j].getEquidistantPointArr(connectors);
   }
+
+  if (helperlineIntervallsVisible) {
+    stroke(255, 0, 0);
+    strokeWeight(2);
+    for (int i = 0; i < connectors; i++) {
+      for (int j = 0; j < helperLinesNo; j++) {
+        bigLine.addPoint(pointsOnLine[j][i]);
+        circle(pointsOnLine[j][i].x, pointsOnLine[j][i].y, 3);
+      }
+    }
+    strokeWeight(strokeweight);
+  }
+
 
   stroke(0);
   for (int i = 0; i < connectors; i++) {
@@ -125,17 +220,26 @@ void drawLines() {
       }
     }
   }
+  if (closeHelperLines) {
+    // in that case also close the large bezier-curve
+    bigLine.closeCurve();
+  }
 
 
   if (!straightLines) {
     // draw the big bezier curve
     if (multiColor) {
       stroke(0);
-      bigLine.drawFromTo(1, bigLine.points.size()/2);
+      bigLine.drawFromTo(1, bigLine.anchorPoints.size()/2);
       stroke(255, 0, 0);
-      bigLine.drawFromTo(bigLine.points.size()/2 + 1, bigLine.points.size()-3);
+      bigLine.drawFromTo(bigLine.anchorPoints.size()/2 + 1, bigLine.anchorPoints.size()-3);
     } else {
-      bigLine.drawFromTo(1, bigLine.points.size()-3);
+      // if (false) {
+      if (closeHelperLines) {
+        bigLine.drawAll();
+      } else {
+        bigLine.drawFromTo(1, bigLine.anchorPoints.size()-3);
+      }
     }
 
     if (!makeMovie) {
@@ -181,7 +285,7 @@ void draw() {
   // create the helperLineArrs new
   BezierLine line;
   for (int j = 0; j < helperLinesNo; j++) {
-    line = new BezierLine();
+    line = new BezierLine(swell);
     for (int i = 0; i < helperLinePoints[j]; i++) {
       if (j == 0) {
         line.addPoint(moviePointVectors[j][i][stillFrameCounter % moviePointVectors[j][i].length]);
@@ -208,49 +312,33 @@ void draw() {
   println(stillFrameCounter);
 }
 
-void mousePressed() {
-  if (mouseButton == LEFT) {
-    // make a new one
-    background(255);
-    
-    if (makeMovie) {
-      movieHelperLinesInitiated = false;
-    } else {
-      createRndHelperLines();
-      drawLines();
-    }
-  }
+void saveToFile() {
+  // Save to a file
+  //create a unique timestamp
+  String timestamp = year() + "-" + month() + "-" + day() + "_" + hour() + "-" + minute() + "-" + second();
 
-  if (mouseButton == RIGHT) {
-    // Save to a file
-    //create a unique timestamp
-    String timestamp = year() + "-" + month() + "-" + day() + "_" + hour() + "-" + minute() + "-" + second();
-
-    if (straightLines) {
-      beginRecord(SVG, sketchPath("output_" + timestamp + ".svg"));   // record it all to an SVG-File
-      drawLines();
-      endRecord(); // Beendet die SVG-Aufzeichnung
-      println(sketchPath("output_" + timestamp + ".svg") + " written");
-    } else {
-      StringBuilder svgContent = new StringBuilder();
-
-      // Header
-      svgContent.append(createSVGHeader(width, height));
-      svgContent.append(bigLine.toSVGPath(max_path_length_in_m * 1000, 1, 1)); // in mm (and if the format of your paper were the same as the canvas here in mm)
-      // Remove the first and the last segment!! Same as we draw it!!
-      // Footer
-      svgContent.append(createSVGFooter());
-
-      // Write it to disc
-      saveSVGToFile(svgContent.toString(), sketchPath("output_" + timestamp + ".svg"));
-      println(sketchPath("output_" + timestamp + ".svg") + " written");
-    }
-  }
-
-  if (mouseButton == CENTER) {
-    creationLinesVisible = !creationLinesVisible;
-    background(255);
+  if (straightLines) {
+    beginRecord(SVG, sketchPath("output_" + timestamp + ".svg"));   // record it all to an SVG-File
     drawLines();
+    endRecord(); // Beendet die SVG-Aufzeichnung
+    println(sketchPath("output_" + timestamp + ".svg") + " written");
+  } else {
+    StringBuilder svgContent = new StringBuilder();
+
+    // Header
+    svgContent.append(createSVGHeader(width, height));
+    if (bigLine.m_closedCurve) {
+      svgContent.append(bigLine.toSVGPath(max_path_length_in_m * 1000, 0, 0)); // in mm (and if the format of your paper were the same as the canvas here in mm)
+    } else {
+      svgContent.append(bigLine.toSVGPath(max_path_length_in_m * 1000, 1, 1)); // in mm (and if the format of your paper were the same as the canvas here in mm)
+      // Remove the first and the last segment!! Same as we draw it!
+    }
+    // Footer
+    svgContent.append(createSVGFooter());
+
+    // Write it to disc
+    saveSVGToFile(svgContent.toString(), sketchPath("output_" + timestamp + ".svg"));
+    println(sketchPath("output_" + timestamp + ".svg") + " written");
   }
 }
 
@@ -269,6 +357,26 @@ void keyPressed () {
   if (key == ' ') {
     pauseAnimation = !pauseAnimation;
   }
+  if (key == 'p') {
+    helperlinePointsVisible = !helperlinePointsVisible;
+  }
+  if (key == 't') {
+    straightLines = !straightLines;
+  }
+  if (key == ENTER || key == RETURN) {
+    if (makeMovie) {
+      movieHelperLinesInitiated = false;
+    } else {
+      createRndHelperLines();
+    }
+  }
+  if (key == 'h') {
+    creationLinesVisible = !creationLinesVisible;
+  }
+  if (key == 's') {
+    saveToFile();
+  }
+
 
   background(255);
   drawLines();
