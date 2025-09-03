@@ -1,6 +1,9 @@
 *.svg
 *.mp4
 frames/
+alexsandra/
+code/
 bezierLineClass.pde
+hatchingLib.pde
 
 !output_samples/*.svg
