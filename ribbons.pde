@@ -167,7 +167,7 @@ void translatedRotatedHelperLines() {
   // Define the translation vector
   PVector addVector = new PVector(50, 50);
   // Convert degrees to radians because PVector.rotate() works with radians
-  float radians = radians(10);  // your rotation angle in degrees
+  float angleRad = radians(10);  // your rotation angle in degrees
 
   // Define the center of rotation
   PVector centerOfRotation = new PVector(width/2, height/2);  // (cx, cy) is the point around which you want to rotate
@@ -176,7 +176,7 @@ void translatedRotatedHelperLines() {
     // Copy the point, rotate it around (0,0), then translate it
     PVector rotatedPoint = point.copy()
       .sub(centerOfRotation)  // Step 1: Move to origin
-      .rotate(radians)        // Step 2: Rotate
+      .rotate(angleRad)       // Step 2: Rotate
       .add(centerOfRotation)  // Step 3: Translate back
       .add(addVector);        // Step 4: Final translation
     // alternative:
